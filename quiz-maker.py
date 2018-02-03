@@ -8,18 +8,21 @@ class Question():
     def save_answer(self, q_answer):
         self.q_answer = q_answer
     def eval_answer(self):
-        if ((ord(self.q_answer) >= 65) and (ord(self.q_answer) <= (65 + len(self.choices) - 1))):
-            if ((ord(self.q_answer) - 65) == int(self.answers)):
-                return 1
-            else:
-                return 0
-        elif ((ord(self.q_answer) >= 97) and (ord(self.q_answer) <= (97 + len(self.choices) - 1))):
-            if ((ord(self.q_answer) - 97) == int(self.answers)):
-                return 1
-            else:
-                return 0
+        print self.q_answer
+        print self.answers
+        if (len(self.q_answer) == len(self.answers)):
+            for ans in self.q_answer:
+                if ((ord(ans) >= 65) and (ord(ans) <= (65 + len(self.choices) - 1))):
+                    if (str(ord(ans) - 65) not in self.answers):
+                        return 0
+                elif ((ord(ans) >= 97) and (ord(ans) <= (97 + len(self.choices) - 1))):
+                    if (str(ord(ans) - 97) not in self.answers):
+                        return 0
+                else:
+                    return -1
+            return 1
         else:
-            return -1
+            return 0
 
 def load(path):
     questions = []
@@ -29,18 +32,19 @@ def load(path):
         for row in contents:
             question = ""
             choices = []
-            answers = ""
+            answers = []
             for i in range(0, len(row)):
                 if i == 0:
                     question = row[i]
                 if i > 0 and "ANS|" not in row[i]:
                     choices.append(row[i])
                 if "ANS|" in row[i]:
-                    answers = row[i].split("ANS|")[1]
+                    temp = row[i].split("ANS|")[1]
+                    answers.append(temp)
             questions.append(Question(question, choices, answers))
     return questions
 
-questions = load("example.csv")
+questions = load("1.csv")
 print "Questions loaded: " + str(len(questions))
 score = 0
 for q in questions:
@@ -50,7 +54,14 @@ for q in questions:
         print chr(choice) + ") " + c
         choice += 1
     answer = raw_input("> ")
-    q.save_answer(answer)
+    answers = []
+    if "," in answer:
+        temp = answer.split(",")
+        for t in temp:
+            answers.append(t)
+    else:
+        answers.append(answer)
+    q.save_answer(answers)
     if q.eval_answer() == 1:
         score += 1
     print ""
